@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
+import { 
   Container,
   Input,
   Botao,
@@ -10,6 +10,7 @@ import {
   BotaoTema,
 } from './components/Estilos';
 import { useTheme } from './hooks/useTheme';
+import { FaMoon, FaSun } from 'react-icons/fa';
 
 const App: React.FC = () => {
   const [concurso, setConcurso] = useState<any>(null);
@@ -88,7 +89,7 @@ const App: React.FC = () => {
       )}
 
       <BotaoTema onClick={toggleTheme}>
-        {isDark ? '☀️' : '🌙'}
+        {isDark ? <FaSun size={20} /> : <FaMoon size={20} />}
       </BotaoTema>
     </Container>
   );
