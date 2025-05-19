@@ -7,10 +7,7 @@ export const GlobalStyle = createGlobalStyle`
     background-color: ${({ theme }) => theme.background};
     color: ${({ theme }) => theme.color};
     font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    transition: background-color 0.3s ease;
   }
 
   button {

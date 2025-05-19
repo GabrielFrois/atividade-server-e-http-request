@@ -1,55 +1,96 @@
 import React, { useEffect, useState } from 'react';
-import { buscarMaisRecente, buscarConcursoPorNumero } from './services/api';
+import {
+  Container,
+  Input,
+  Botao,
+  Card,
+  Titulo,
+  Bolas,
+  Bola,
+  BotaoTema,
+} from './components/Estilos';
+import { useTheme } from './hooks/useTheme';
 
 const App: React.FC = () => {
   const [concurso, setConcurso] = useState<any>(null);
   const [numero, setNumero] = useState('');
   const [erro, setErro] = useState('');
+  const { toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
-    async function fetchData() {
-      const dados = await buscarMaisRecente();
-      setConcurso(dados);
+    async function fetchMaisRecente() {
+      try {
+        const res = await fetch('http://localhost:3001/', { redirect: 'follow' });
+        const data = await res.json();
+        setConcurso(data);
+      } catch (error) {
+        setErro('Erro ao buscar concurso mais recente.');
+      }
     }
-    fetchData();
+    fetchMaisRecente();
   }, []);
 
   const buscarConcurso = async () => {
     setErro('');
     try {
-      const dados = await buscarConcursoPorNumero(numero);
-      if (dados.mensagem) {
-        setErro(dados.mensagem);
+      const res = await fetch(`http://localhost:3001/${numero}`);
+      const data = await res.json();
+
+      if (data.mensagem) {
+        setErro(`Não existem dados do concurso ${numero}`);
         setConcurso(null);
       } else {
-        setConcurso(dados);
+        setConcurso(data);
       }
     } catch {
-      setErro('Erro ao buscar concurso');
+      setErro('Erro ao buscar concurso.');
     }
   };
 
   return (
-    <div>
-      <h1>Consulta Mega-Sena</h1>
-      <input
-        type="text"
-        value={numero}
-        onChange={(e) => setNumero(e.target.value)}
-        placeholder="Número do concurso"
-      />
-      <button onClick={buscarConcurso}>Buscar</button>
+    <Container>
+      <div>
+        <Input
+          type="number"
+          value={numero}
+          onChange={(e) => setNumero(e.target.value)}
+          placeholder="Número do concurso"
+        />
+        <Botao onClick={buscarConcurso}>Buscar</Botao>
+      </div>
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && (
+        <Card>
+          <p style={{ fontWeight: 'bold' }}>{erro}</p>
+        </Card>
+      )}
 
       {concurso && (
-        <div>
-          <h2>Concurso {concurso.concurso}</h2>
-          <p>Data: {new Date(concurso.data_do_sorteio).toLocaleDateString()}</p>
-          <p>Números: {concurso.bola1}, {concurso.bola2}, {concurso.bola3}, {concurso.bola4}, {concurso.bola5}, {concurso.bola6}</p>
-        </div>
+        <Card>
+          <Titulo>MEGA-SENA - Concurso {concurso.concurso}</Titulo>
+          <Bolas>
+            <Bola>{concurso.bola1}</Bola>
+            <Bola>{concurso.bola2}</Bola>
+            <Bola>{concurso.bola3}</Bola>
+            <Bola>{concurso.bola4}</Bola>
+            <Bola>{concurso.bola5}</Bola>
+            <Bola>{concurso.bola6}</Bola>
+          </Bolas>
+          <p>
+            {new Date(concurso.data_do_sorteio).toLocaleDateString('pt-BR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </p>
+        </Card>
       )}
-    </div>
+
+      <BotaoTema onClick={toggleTheme}>
+        {isDark ? '☀️' : '🌙'}
+      </BotaoTema>
+    </Container>
   );
 };
 
